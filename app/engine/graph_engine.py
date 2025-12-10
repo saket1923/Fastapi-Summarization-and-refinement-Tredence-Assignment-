@@ -4,7 +4,7 @@ from typing import Dict, List, Any, Optional, Callable, Union
 from enum import Enum
 import logging
 
-# Configure logging
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -23,7 +23,6 @@ class Node:
             else:
                 result = self.action(copy.deepcopy(state))
             
-            # If the action returns a dict, update the state with it
             if isinstance(result, dict):
                 state.update(result)
             return state
@@ -71,7 +70,6 @@ class WorkflowEngine:
         current_node_id = self.graph.start_node_id
         execution_log = []
 
-        # Safety limit for loops
         max_steps = 100
         steps = 0
 
@@ -81,12 +79,12 @@ class WorkflowEngine:
                 logger.error(f"Node {current_node_id} not found.")
                 break
 
-            # Execute Node
+           
             execution_log.append(current_node_id)
             state = await current_node.execute(state)
             steps += 1
 
-            # Determine Next Node
+           
             edges = self.graph.get_outgoing_edges(current_node_id)
             next_node_id = None
             
