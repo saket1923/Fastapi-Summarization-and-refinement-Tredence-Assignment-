@@ -1,4 +1,5 @@
 # FastAPI Workflow Engine (V2)
+![image alt](https://github.com/saket1923/Fastapi-Summarization-and-refinement-Tredence-Assignment-/blob/3bb0980e4cc492fb46fde2019c89b7c730bb7c51/Screenshot%202025-12-10%20203127.png)
 
 This implementation follows the assignment described in the uploaded prompt (brief one-liner) and include a reference marker: :contentReference[oaicite:0]{index=0}
 
