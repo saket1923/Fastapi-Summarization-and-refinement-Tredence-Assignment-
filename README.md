@@ -68,3 +68,31 @@ Response: `{"run_id": "..."}`
 
 ### Get Run State
 `GET /graph/state/{run_id}`
+
+### What this workflow engine supports
+Node-based execution — each step is a Python function that reads and updates shared state.
+
+Edges & routing — define which step runs next using a simple graph structure.
+
+Branching — condition-based transitions to different nodes.
+
+Looping — repeat nodes until a condition is satisfied.
+
+Shared state propagation — a dictionary flows through all steps.
+
+Tool registry — functions (tools) can be registered and used inside nodes.
+
+Graph creation & execution via FastAPI APIs — /graph/create, /graph/run, /graph/state/{run_id}.
+
+In-memory graph + run storage.
+
+### What I would do with more time
+Add persistent storage using SQLite/Postgres instead of in-memory storage.
+
+Add WebSocket streaming to show step-by-step execution logs in real-time.
+
+Add async support for long-running nodes to run tasks concurrently.
+
+Add input validators and richer error handling.
+
+Add more complex example workflows beyond summarization (e.g., data quality, code analysis).
