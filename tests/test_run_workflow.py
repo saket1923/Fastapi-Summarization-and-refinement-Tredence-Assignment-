@@ -8,8 +8,7 @@ def test_run_workflow_sync():
     """
     Test the summarization workflow in synchronous mode.
     """
-    # 1. Create Graph (already pre-loaded, but let's ensure it's there or create it)
-    # The app pre-loads 'summarization_workflow'
+   
     
     # 2. Run Workflow
     long_text = "This is a sentence. " * 50 # 50 sentences, definitely > 100 chars
@@ -40,12 +39,12 @@ def test_run_workflow_sync():
     assert final_summary is not None
     assert len(final_summary) <= max_length
     
-    # Check execution log
+    
     log = data["execution_log"]
     assert len(log) > 0
     node_ids = [entry["node_id"] for entry in log]
     
-    # Should have visited split, summarize, merge, refine
+    
     assert "split_text" in node_ids
     assert "summarize_chunks" in node_ids
     assert "merge_summaries" in node_ids
