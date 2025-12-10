@@ -9,7 +9,7 @@ from app.models.api_models import GraphDefinition, ExecutionLogEntry
 from app.run_store import save_run, update_run, get_run
 from app.registry import ToolRegistry
 
-# Configure logging
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ class WorkflowEngine:
 
     async def run_async(self, initial_state: Dict[str, Any], config: Dict[str, Any] = {}):
         """Starts the workflow in the background."""
-        # Initialize run record
+        
         save_run(self.run_id, {
             "run_id": self.run_id,
             "status": "running",
@@ -34,7 +34,7 @@ class WorkflowEngine:
             "execution_log": []
         })
         
-        # Fire and forget (or rather, run in background task)
+        
         asyncio.create_task(self._execute(initial_state, config))
         return self.run_id
 
@@ -61,29 +61,13 @@ class WorkflowEngine:
                 if not node_def:
                     raise ValueError(f"Node {current_node_id} not found")
 
-                # 1. Execute Node
                 start_ts = datetime.utcnow()
                 
                 action_func = ToolRegistry.get_tool(node_def.action_name)
                 if not action_func:
                     raise ValueError(f"Tool {node_def.action_name} not found")
 
-                # Prepare args: state + config
-                # Note: The requirement says nodes accept shared `state`.
-                # We can pass config as part of state or separate? 
-                # Requirement: "Nodes are plain Python functions that accept and return a shared `state` dict."
-                # So we pass state. We can merge node config into state temporarily or just rely on state.
-                # Let's assume node config is static params, maybe passed?
-                # For simplicity, let's update state with node config if needed, or just pass state.
-                # The prompt says: "Nodes... accept and return a shared state dict".
-                # But we also have `config` in NodeDefinition. 
-                # Let's inject `node_config` into state for the function to use?
                 
-                # Make a copy for safety? Or modify in place? Requirement: "modify a shared state dict".
-                # We should probably pass a copy to avoid side effects if we want to keep history?
-                # But usually state is mutable.
-                
-                # Inject node config into state under a special key?
                 state["_node_config"] = node_def.config
                 
                 logger.info(f"Executing {current_node_id}...")
@@ -98,7 +82,7 @@ class WorkflowEngine:
                 
                 end_ts = datetime.utcnow()
                 
-                # Log execution
+               
                 log_entry = ExecutionLogEntry(
                     node_id=current_node_id,
                     start_ts=start_ts,
@@ -106,7 +90,7 @@ class WorkflowEngine:
                     state_snapshot=copy.deepcopy(state)
                 )
                 
-                # Update run store
+               
                 current_run_data = get_run(self.run_id)
                 current_log = current_run_data.get("execution_log", [])
                 current_log.append(log_entry.dict())
@@ -118,19 +102,17 @@ class WorkflowEngine:
                 
                 steps += 1
 
-                # 2. Determine Next Node
+                
                 edges = self.edges_map.get(current_node_id, [])
                 next_node_id = None
                 
                 for edge in edges:
-                    # Check condition
+                    
                     condition_met = True
                     if edge.condition_name:
                         cond_func = ToolRegistry.get_condition(edge.condition_name)
                         if cond_func:
-                            # Condition functions also take state?
-                            # Requirement: "condition_name that resolves to a condition function... returns bool"
-                            # "summary_length_below_limit(state, param_max_length)"
+                            
                             condition_met = cond_func(state)
                         else:
                             logger.warning(f"Condition {edge.condition_name} not found, assuming False")
@@ -138,10 +120,7 @@ class WorkflowEngine:
                     
                     if condition_met:
                         next_node_id = edge.target_id
-                        # If loop is True, we might stay here? 
-                        # Requirement: "Looping: allow a node to be re-invoked until a condition... is met"
-                        # This is handled by the edge pointing back to the same node (or previous).
-                        # The `loop` bool in EdgeDefinition might be metadata, but the graph structure dictates the loop.
+                       
                         break
                 
                 current_node_id = next_node_id
